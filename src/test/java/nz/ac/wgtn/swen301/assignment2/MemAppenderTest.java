@@ -7,19 +7,23 @@ import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import sun.plugin2.message.Message;
 
+import java.io.IOException;
+
 public class MemAppenderTest {
 
-    Logger logger;
+    Logger logger = Logger.getLogger("TEST");
     MemAppender memAppender = new MemAppender();
 
-    @Before
-    public void init(){
-        logger = Logger.getLogger("TEST");
-    }
+//    @Before
+//    public void init(){
+//        logger = Logger.getLogger("TEST");
+//    }
 
     @Test
     public void test1(){
-        memAppender.append(new LoggingEvent("Test", logger, Level.WARN, "this is a test", new Throwable()));
+        LoggingEvent lg = new LoggingEvent("Test", logger, Level.WARN, "this is a test", new Throwable());
+        memAppender.append(lg);
+        memAppender.exportToJSON("logs.json");
     }
 
 }
