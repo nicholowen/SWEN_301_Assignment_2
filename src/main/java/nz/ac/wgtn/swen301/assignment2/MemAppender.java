@@ -3,7 +3,6 @@ package nz.ac.wgtn.swen301.assignment2;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.sun.javafx.UnmodifiableArrayList;
 import org.apache.log4j.*;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -29,11 +28,10 @@ public class MemAppender extends AppenderSkeleton{
     protected void append(LoggingEvent loggingEvent) {
         if (this.getThreshold() != null && !loggingEvent.getLevel().isGreaterOrEqual(this.getThreshold())) return;
         loggingEvents.add(loggingEvent);
-        if (loggingEvents.size() > maxSize) {
+        while (loggingEvents.size() > maxSize) {
             loggingEvents.remove(0); // removes the zeroth event log (the oldest).
             discardedLogs++; // counts how many logs have been discarded.
         }
-
     }
 
     //Logs can be accessed using the following non-static method
@@ -73,12 +71,10 @@ public class MemAppender extends AppenderSkeleton{
         }
     }
 
-    public boolean isClosed() {
-        return this.closed;
-    }
-
     @Override
     public void close() {
+        clearLogs();
+        discardedLogs = 0;
         this.closed = true;
     }
 
@@ -100,8 +96,13 @@ public class MemAppender extends AppenderSkeleton{
     }
 
     public void setMaxSize(long maxSize){
+        if(maxSize < 0) throw new IllegalArgumentException();
+        if(loggingEvents != null && this.maxSize > maxSize) {
+            while (loggingEvents.size() > maxSize) {
+                loggingEvents.remove(0);
+                discardedLogs++;
+            }
+        }
         this.maxSize = maxSize;
     }
-
-
 }

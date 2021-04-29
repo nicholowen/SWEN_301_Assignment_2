@@ -24,7 +24,7 @@ public class JSONLayout extends Layout {
             jsonObj.put("level", loggingEvent.getLevel().toString());
             jsonObj.put("starttime", loggingEvent.getTimeStamp());
             jsonObj.put("thread", loggingEvent.getThreadName());
-            jsonObj.put("Message", loggingEvent.getMessage());
+            jsonObj.put("message", loggingEvent.getMessage());
 
             //using gson to parse map object to json
             return gson.toJson(jsonObj);
