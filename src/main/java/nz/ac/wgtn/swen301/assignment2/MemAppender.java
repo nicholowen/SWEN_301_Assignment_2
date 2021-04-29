@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class MemAppender extends AppenderSkeleton{
+public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
 
     public static List<LoggingEvent> loggingEvents =  new ArrayList<>(); //stores logging events
     public long maxSize = 1000;
@@ -40,6 +40,24 @@ public class MemAppender extends AppenderSkeleton{
         return Collections.unmodifiableList(loggingEvents);
     }
 
+    @Override
+    public String[] getLogs() {
+        Layout layout = new PatternLayout();
+        String[] logs = new String[loggingEvents.size()];
+        for (int i = 0; i < loggingEvents.size(); i++){
+            String s = layout.format(loggingEvents.get(i));
+            System.out.println(s);
+            logs[i] = s;
+        }
+        return logs;
+    }
+
+    @Override
+    public long getLogCount() {
+        return loggingEvents.size();
+    }
+
+    @Override
     public long getDiscardedLogCount(){
         return discardedLogs;
     }
