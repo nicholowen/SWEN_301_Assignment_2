@@ -11,10 +11,10 @@ import org.junit.Test;
 public class JSONLayoutTest {
 
     @Test
-    public void test(){
+    public void testParsedValuesAssertEquals(){
         JSONLayout layout = new JSONLayout();
         Logger logger = Logger.getLogger(JSONLayout.class);
-        LoggingEvent lg = new LoggingEvent("Test", logger, Level.WARN, "Warning, this is a test!", null);
+        LoggingEvent lg = new LoggingEvent("JSONLayoutTest", logger, Level.WARN, "Warning, this is a test!", null);
         String json = layout.format(lg);
         JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
 

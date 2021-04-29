@@ -6,9 +6,11 @@ import com.google.gson.JsonObject;
 import org.apache.log4j.*;
 import org.apache.log4j.spi.LoggingEvent;
 
+import javax.management.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +31,7 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
         if (this.getThreshold() != null && !loggingEvent.getLevel().isGreaterOrEqual(this.getThreshold())) return;
         loggingEvents.add(loggingEvent);
         while (loggingEvents.size() > maxSize) {
-            loggingEvents.remove(0); // removes the zeroth event log (the oldest).
+            loggingEvents.remove(0); // removes the zeroth event log (the first added/oldest).
             discardedLogs++; // counts how many logs have been discarded.
         }
     }
@@ -43,10 +45,9 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
     @Override
     public String[] getLogs() {
         Layout layout = new PatternLayout();
-        String[] logs = new String[loggingEvents.size()];
+        String[] logs = new String[(int)getLogCount()];
         for (int i = 0; i < loggingEvents.size(); i++){
             String s = layout.format(loggingEvents.get(i));
-            System.out.println(s);
             logs[i] = s;
         }
         return logs;
@@ -93,6 +94,7 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
     public void close() {
         clearLogs();
         discardedLogs = 0;
+        this.maxSize = 1000;
         this.closed = true;
     }
 
@@ -123,4 +125,5 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
         }
         this.maxSize = maxSize;
     }
+
 }
