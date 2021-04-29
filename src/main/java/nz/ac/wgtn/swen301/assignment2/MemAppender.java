@@ -15,24 +15,25 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class MemAppender extends AppenderSkeleton {
+public class MemAppender extends AppenderSkeleton{
 
     public static List<LoggingEvent> loggingEvents =  new ArrayList<>(); //stores logging events
-    public String name;
     public long maxSize = 1000;
     public static long discardedLogs = 0;
 
-    public MemAppender(){
-
+    public MemAppender(String name){
+        this.setName(name);
     }
 
     @Override
     protected void append(LoggingEvent loggingEvent) {
+        if (this.getThreshold() != null && !loggingEvent.getLevel().isGreaterOrEqual(this.getThreshold())) return;
         loggingEvents.add(loggingEvent);
-        if(loggingEvents.size() >= maxSize){
+        if (loggingEvents.size() > maxSize) {
             loggingEvents.remove(0); // removes the zeroth event log (the oldest).
             discardedLogs++; // counts how many logs have been discarded.
         }
+
     }
 
     //Logs can be accessed using the following non-static method
@@ -51,20 +52,29 @@ public class MemAppender extends AppenderSkeleton {
     Each JSON object represents a log event, the log
      */
     public void exportToJSON(String fileName) {
+        if(loggingEvents.size() > 0) {
+            try (FileWriter file = new FileWriter(fileName)) {
 
-        try (FileWriter file = new FileWriter(fileName)) {
+                file.write("[\n");
 
-            //writes a all logging events to file after being formatted by JSONLayout
-            JSONLayout layout = new JSONLayout();
-            for(LoggingEvent lg : loggingEvents){
-                String formatted = layout.format(lg);
-                file.write(formatted);
+                //writes a all logging events to file after being formatted by JSONLayout
+                JSONLayout layout = new JSONLayout();
+                for (int i = 0; i < loggingEvents.size(); i++) {
+                    String formatted = layout.format(loggingEvents.get(i));
+                    file.write(formatted);
+                    if (i < loggingEvents.size() - 1) file.write(",\n");
+                }
+                file.write("\n]");
+                file.flush();
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            file.flush();
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+    }
+
+    public boolean isClosed() {
+        return this.closed;
     }
 
     @Override
@@ -79,6 +89,18 @@ public class MemAppender extends AppenderSkeleton {
     @Override
     public boolean requiresLayout() {
         return false;
+    }
+
+    public void clearLogs(){
+        loggingEvents.clear();
+    }
+
+    public long getMaxSize(){
+        return this.maxSize;
+    }
+
+    public void setMaxSize(long maxSize){
+        this.maxSize = maxSize;
     }
 
 

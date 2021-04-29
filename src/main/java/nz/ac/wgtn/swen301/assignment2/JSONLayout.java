@@ -5,18 +5,12 @@ import com.google.gson.GsonBuilder;
 import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LoggingEvent;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class JSONLayout extends Layout {
-    private String logger;
-    private String level;
-    private long starttime;
-    private String thread;
-    private String message;
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
 
     public JSONLayout(){
     }
@@ -24,15 +18,15 @@ public class JSONLayout extends Layout {
     @Override
     public String format(LoggingEvent loggingEvent) {
         try {
-            Map<String, Object> jsonObj = new HashMap<>();
+            Map<String, Object> jsonObj = new LinkedHashMap<>();
 
             jsonObj.put("logger", loggingEvent.getLoggerName());
-            jsonObj.put("level", loggingEvent.getLevel());
+            jsonObj.put("level", loggingEvent.getLevel().toString());
             jsonObj.put("starttime", loggingEvent.getTimeStamp());
             jsonObj.put("thread", loggingEvent.getThreadName());
             jsonObj.put("Message", loggingEvent.getMessage());
 
-            //don't really see the point in this gson to json though... maybe just for pretty?
+            //using gson to parse map object to json
             return gson.toJson(jsonObj);
         } catch (Exception e) {
             e.printStackTrace();
