@@ -43,6 +43,7 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
         Layout layout = new PatternLayout();
         String[] logs = new String[(int)getLogCount()];
         for (int i = 0; i < loggingEvents.size(); i++){
+
             String s = layout.format(loggingEvents.get(i));
             logs[i] = s;
         }

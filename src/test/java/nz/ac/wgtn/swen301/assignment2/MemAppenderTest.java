@@ -14,10 +14,10 @@ public class MemAppenderTest {
     public void test_1000LogAppend(){
         MemAppender memAppender = new MemAppender("test_1000LogAppend");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
+        logger.addAppender(memAppender);
         long maxSize = memAppender.getMaxSize();
         for(int i = 0; i < maxSize; i++){ //logs 1000 events
-            LoggingEvent lg = new LoggingEvent("Test" + i, logger, Level.WARN, "this is a test " + i, null);
-            memAppender.append(lg);
+            logger.log(Level.WARN, "this is a test " + i);
         }
         memAppender.exportToJSON("1000logs");
         Assert.assertEquals(memAppender.getCurrentLogs().size(), maxSize);
@@ -27,10 +27,10 @@ public class MemAppenderTest {
     public void test_BelowLevelThreshold(){
         MemAppender memAppender = new MemAppender("test_BelowLevelThreshold");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
+        logger.addAppender(memAppender);
         memAppender.setThreshold(Level.ERROR);
-        memAppender.append(new LoggingEvent("ErrorLog", logger, Level.ERROR, "This is a threshold test ", null));
-        LoggingEvent lg = new LoggingEvent("Test", logger, Level.WARN, "this is a test ", null);
-        memAppender.append(lg);
+        logger.log(Level.ERROR, "This is a threshold test");
+        logger.log(Level.WARN, "Another Test");
         Assert.assertEquals(1, memAppender.getCurrentLogs().size());
     }
 
@@ -38,9 +38,10 @@ public class MemAppenderTest {
     public void test_AboveLevelThreshold(){
         MemAppender memAppender = new MemAppender("test_AboveLevelThreshold");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
+        logger.addAppender(memAppender);
         memAppender.setThreshold(Level.ERROR);
-        memAppender.append(new LoggingEvent("ErrorLog", logger, Level.ERROR, "This is a threshold test ", null));
-        memAppender.append(new LoggingEvent("FatalLog", logger, Level.FATAL, "This is a threshold test ", null));
+        logger.log(Level.ERROR, "This is a threshold test");
+        logger.log(Level.FATAL, "This is a threshold test");
         Assert.assertEquals(2, memAppender.getCurrentLogs().size()); //added 2 logs of Level > ERROR
     }
 
@@ -80,10 +81,10 @@ public class MemAppenderTest {
     public void test_DiscardedLogCount(){
         MemAppender memAppender = new MemAppender("test_DiscardedLogCount");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
+        logger.addAppender(memAppender);
         long maxSize = memAppender.getMaxSize() + 100;
         for(int i = 0; i < maxSize; i++){ //logs 1100 events (max size is still 1000)
-            LoggingEvent lg = new LoggingEvent("Test" + i, logger, Level.WARN, "this is a test " + i, null);
-            memAppender.append(lg);
+            logger.log(Level.WARN, "this is a test " + i);
         }
         Assert.assertEquals(100, memAppender.getDiscardedLogCount());
     }
@@ -92,9 +93,9 @@ public class MemAppenderTest {
     public void test_ModifyUnmodifiableListFail(){
         MemAppender memAppender = new MemAppender("test_ModifyUnmodifiableListFail");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
+        logger.addAppender(memAppender);
         for(int i = 0; i < 10; i++){
-            LoggingEvent lg = new LoggingEvent("Test" + i, logger, Level.WARN, "this is a test " + i, null);
-            memAppender.append(lg);
+            logger.log(Level.WARN, "this is a test " + i);
         }
         List<LoggingEvent> eventLogs = memAppender.getCurrentLogs();
         eventLogs.add(new LoggingEvent("This should not work", logger, Level.WARN, "Is this a test?", null));
@@ -105,10 +106,10 @@ public class MemAppenderTest {
     public void test_MaxSizeChangeWithPopulatedList(){
         MemAppender memAppender = new MemAppender("test_MaxSizeChangeWithPopulatedList");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
+        logger.addAppender(memAppender);
         long maxSize = memAppender.getMaxSize();
         for(int i = 0; i < maxSize; i++){ //logs 1000 events
-            LoggingEvent lg = new LoggingEvent("Test" + i, logger, Level.WARN, "this is a test " + i, null);
-            memAppender.append(lg);
+            logger.log(Level.WARN, "this is a test " + i);
         }
         Assert.assertEquals(memAppender.getCurrentLogs().size(), maxSize);
         memAppender.setMaxSize(900);
@@ -120,8 +121,8 @@ public class MemAppenderTest {
     public void test_GetLogs(){
         MemAppender memAppender = new MemAppender("test_GetLogs");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
-        LoggingEvent lg = new LoggingEvent("Test", logger, Level.WARN, "this is a test", null);
-        memAppender.append(lg);
+        logger.addAppender(memAppender);
+        logger.log(Level.WARN, "this is a test");
         Assert.assertTrue(memAppender.getLogs().length == 1);
         Assert.assertEquals("this is a test\n", memAppender.getLogs()[0]);
     }
@@ -130,8 +131,8 @@ public class MemAppenderTest {
     public void test_LogCount(){
         MemAppender memAppender = new MemAppender("test_LogCount");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
-        LoggingEvent lg = new LoggingEvent("Test", logger, Level.WARN, "this is a test", null);
-        memAppender.append(lg);
+        logger.addAppender(memAppender);
+        logger.log(Level.WARN, "this is a test");
         Assert.assertEquals(1, memAppender.getLogCount());
     }
 
