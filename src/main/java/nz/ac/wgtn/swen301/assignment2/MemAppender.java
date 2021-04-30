@@ -1,13 +1,12 @@
 package nz.ac.wgtn.swen301.assignment2;
 
-import org.apache.log4j.*;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Layout;
+import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
 
-import javax.management.*;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,9 +19,6 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
     private long discardedLogs = 0;
 
     public MemAppender(String name){
-//        clearLogs();
-//        discardedLogs = 0;
-//        this.maxSize = 1000;
         this.setName(name);
     }
 
@@ -79,12 +75,10 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
                 for (int i = 0; i < loggingEvents.size(); i++) {
                     String formatted = layout.format(loggingEvents.get(i));
                     file.write(formatted);
-                    //if (i < loggingEvents.size() - 1)
-                        file.write(",\n");
+                    if (i < loggingEvents.size() - 1) file.write(",\n");
                 }
                 file.write("\n]");
                 file.flush();
-                this.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -103,10 +97,6 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
     @Override
     public boolean requiresLayout() {
         return false;
-    }
-
-    public void clearLogs(){
-        loggingEvents.clear();
     }
 
     public long getMaxSize(){

@@ -3,12 +3,9 @@ package nz.ac.wgtn.swen301.assignment2;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MemAppenderTest {
@@ -22,6 +19,7 @@ public class MemAppenderTest {
             LoggingEvent lg = new LoggingEvent("Test" + i, logger, Level.WARN, "this is a test " + i, null);
             memAppender.append(lg);
         }
+        memAppender.exportToJSON("1000logs");
         Assert.assertEquals(memAppender.getCurrentLogs().size(), maxSize);
     }
 
@@ -70,7 +68,7 @@ public class MemAppenderTest {
         memAppender.setMaxSize(-1);
     }
 
-    @Test
+    @Test //change max size
     public void test_SetMaxSize(){
         MemAppender memAppender = new MemAppender("test_SetMaxSize");
         Assert.assertEquals(memAppender.getMaxSize(), 1000);
@@ -78,7 +76,7 @@ public class MemAppenderTest {
         Assert.assertEquals(memAppender.getMaxSize(), 600);
     }
 
-    @Test
+    @Test // tests discarded log count operates correctly
     public void test_DiscardedLogCount(){
         MemAppender memAppender = new MemAppender("test_DiscardedLogCount");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
@@ -90,7 +88,7 @@ public class MemAppenderTest {
         Assert.assertEquals(100, memAppender.getDiscardedLogCount());
     }
 
-    @Test (expected = UnsupportedOperationException.class)
+    @Test (expected = UnsupportedOperationException.class) // cannot modify an unmodifiable list
     public void test_ModifyUnmodifiableListFail(){
         MemAppender memAppender = new MemAppender("test_ModifyUnmodifiableListFail");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
@@ -102,16 +100,8 @@ public class MemAppenderTest {
         eventLogs.add(new LoggingEvent("This should not work", logger, Level.WARN, "Is this a test?", null));
     }
 
-    @Test (expected = Exception.class)
-    public void test_FileWriterIOExceptionPass(){
-        MemAppender memAppender = new MemAppender("test_FileWriterIOExceptionPass");
-        Logger logger = Logger.getLogger(MemAppenderTest.class);
-        LoggingEvent lg = new LoggingEvent("Test", logger, Level.WARN, "this is a test", null);
-        memAppender.append(lg);
-        memAppender.exportToJSON(null);
-    }
 
-    @Test
+    @Test // ensures correct number of logs are removed when max size is changed to a lower max size
     public void test_MaxSizeChangeWithPopulatedList(){
         MemAppender memAppender = new MemAppender("test_MaxSizeChangeWithPopulatedList");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
@@ -126,7 +116,7 @@ public class MemAppenderTest {
         Assert.assertEquals(100, memAppender.getDiscardedLogCount());
     }
 
-    @Test
+    @Test // test functionality of getLogs method
     public void test_GetLogs(){
         MemAppender memAppender = new MemAppender("test_GetLogs");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
@@ -136,7 +126,7 @@ public class MemAppenderTest {
         Assert.assertEquals("this is a test\n", memAppender.getLogs()[0]);
     }
 
-    @Test
+    @Test //test functionality of logCount method
     public void test_LogCount(){
         MemAppender memAppender = new MemAppender("test_LogCount");
         Logger logger = Logger.getLogger(MemAppenderTest.class);
