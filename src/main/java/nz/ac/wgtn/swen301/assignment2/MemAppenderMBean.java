@@ -8,3 +8,4 @@ public interface MemAppenderMBean {
     void exportToJSON(String filename);
 
 }
+

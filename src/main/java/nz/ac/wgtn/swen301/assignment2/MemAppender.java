@@ -1,8 +1,5 @@
 package nz.ac.wgtn.swen301.assignment2;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import org.apache.log4j.*;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -18,19 +15,22 @@ import java.util.List;
 
 public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
 
-    public static List<LoggingEvent> loggingEvents =  new ArrayList<>(); //stores logging events
-    public long maxSize = 1000;
-    public static long discardedLogs = 0;
+    private List<LoggingEvent> loggingEvents =  new ArrayList<>(); //stores logging events
+    private long maxSize = 1000;
+    private long discardedLogs = 0;
 
     public MemAppender(String name){
+//        clearLogs();
+//        discardedLogs = 0;
+//        this.maxSize = 1000;
         this.setName(name);
     }
 
     @Override
-    protected void append(LoggingEvent loggingEvent) {
+    public void append(LoggingEvent loggingEvent) {
         if (this.getThreshold() != null && !loggingEvent.getLevel().isGreaterOrEqual(this.getThreshold())) return;
         loggingEvents.add(loggingEvent);
-        while (loggingEvents.size() > maxSize) {
+        if (loggingEvents.size() > maxSize) {
             loggingEvents.remove(0); // removes the zeroth event log (the first added/oldest).
             discardedLogs++; // counts how many logs have been discarded.
         }
@@ -70,7 +70,7 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
      */
     public void exportToJSON(String fileName) {
         if(loggingEvents.size() > 0) {
-            try (FileWriter file = new FileWriter(fileName)) {
+            try (FileWriter file = new FileWriter(fileName + ".json")) {
 
                 file.write("[\n");
 
@@ -79,11 +79,12 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
                 for (int i = 0; i < loggingEvents.size(); i++) {
                     String formatted = layout.format(loggingEvents.get(i));
                     file.write(formatted);
-                    if (i < loggingEvents.size() - 1) file.write(",\n");
+                    //if (i < loggingEvents.size() - 1)
+                        file.write(",\n");
                 }
                 file.write("\n]");
                 file.flush();
-
+                this.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,9 +93,6 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
 
     @Override
     public void close() {
-        clearLogs();
-        discardedLogs = 0;
-        this.maxSize = 1000;
         this.closed = true;
     }
 
@@ -117,7 +115,7 @@ public class MemAppender extends AppenderSkeleton implements MemAppenderMBean{
 
     public void setMaxSize(long maxSize){
         if(maxSize < 0) throw new IllegalArgumentException();
-        if(loggingEvents != null && this.maxSize > maxSize) {
+        if(loggingEvents != null) {
             while (loggingEvents.size() > maxSize) {
                 loggingEvents.remove(0);
                 discardedLogs++;
