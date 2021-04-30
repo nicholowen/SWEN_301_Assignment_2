@@ -19,7 +19,6 @@ public class JSONLayoutTest {
         String json = layout.format(lg);
         JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);
 
-
         Assert.assertEquals(jsonObject.get("level").toString(), "\"WARN\"");
         Assert.assertEquals(jsonObject.get("message").toString(), "\"Warning, this is a test!\"" );
         Assert.assertEquals(jsonObject.get("logger").toString(), "\"nz.ac.wgtn.swen301.assignment2.JSONLayout\"");

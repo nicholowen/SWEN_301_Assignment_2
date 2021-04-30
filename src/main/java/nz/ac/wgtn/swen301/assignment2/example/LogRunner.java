@@ -10,6 +10,8 @@ import javax.management.*;
 import java.lang.management.ManagementFactory;
 import java.util.Random;
 
+// JMX/MBeans monitoring implementation from baeldung.com
+
 public class LogRunner {
 
     private static String[] randMessage = {"beep beep", "logs are people too", "cannon fodder", "it's just a painting", "acme TNT"};
@@ -28,7 +30,7 @@ public class LogRunner {
         Logger logger = Logger.getLogger(LogRunner.class);
         Random r = new Random();
 
-        int time = 20;
+        int time = 120;
         while(time >= 0) {
 
             LoggingEvent lg = new LoggingEvent("MBeanLogEvent", logger, randLevels[r.nextInt(5)], randMessage[r.nextInt(5)], null);
